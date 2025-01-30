@@ -8,7 +8,8 @@ load_dotenv()
 
 @dataclass
 class Settings:
-    TOKEN: str = os.getenv("TOKEN")
+    TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN")
+    WEATHER_API_TOKEN: str = os.getenv("WEATHER_API_TOKEN")
 
 
 settings = Settings()

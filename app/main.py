@@ -9,7 +9,10 @@ from aiogram.enums import ParseMode
 from app.config import settings
 from app.routers import router as start_router
 
-bot = Bot(token=settings.TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+bot = Bot(
+    token=settings.TELEGRAM_BOT_TOKEN,
+    default=DefaultBotProperties(parse_mode=ParseMode.HTML),
+)
 dp = Dispatcher()
 
 
