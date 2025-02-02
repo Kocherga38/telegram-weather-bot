@@ -1,1 +1,1 @@
-from app.routers.user_location import router
+from app.routers.location import router
