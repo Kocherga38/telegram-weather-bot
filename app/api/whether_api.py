@@ -1,7 +1,7 @@
 import asyncio
 import aiohttp
 
-from app.config import settings
+from app.config.bot import bot_settings as settings
 
 from pprint import pprint
 

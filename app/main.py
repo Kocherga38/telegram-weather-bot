@@ -6,7 +6,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
-from app.config import settings
+from app.config import bot_settings as settings
 from app.routers import router as start_router
 
 bot = Bot(
