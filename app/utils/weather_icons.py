@@ -1,0 +1,17 @@
+weather_emojis = {
+    "clear": "☀️",
+    "clouds": "☁️",
+    "rain": "🌧",
+    "drizzle": "🌦",
+    "thunderstorm": "⛈",
+    "snow": "❄️",
+    "mist": "🌫",
+    "fog": "🌫",
+    "haze": "🌁",
+    "smoke": "💨",
+    "dust": "🏜",
+    "sand": "🏖",
+    "ash": "🌋",
+    "squall": "🌬",
+    "tornado": "🌪",
+}

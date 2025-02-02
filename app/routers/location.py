@@ -9,19 +9,22 @@ from aiogram.types import (
     Message,
     ReplyKeyboardRemove,
 )
-
 from app.config.bot import bot_settings as settings
-from app.storage import save_city_in_redis, get_city
+
+from app.storage import save_city_in_redis
 from app.api import fetch_weather_data
 
 logger = logging.getLogger(__name__)
 
+
 class WeatherStates(StatesGroup):
     city = State()
 
+
 router = Router()
 
-@router.message(Command(commands=["start", "set_location"]))
+
+@router.message(Command(commands=["start", "location"]))
 async def start_handler(message: Message, state: FSMContext) -> None:
     await state.set_state(WeatherStates.city)
     await message.answer(
@@ -30,21 +33,11 @@ async def start_handler(message: Message, state: FSMContext) -> None:
     )
 
 
-@router.message(Command("get_location"))
-async def get_city_location(message: Message) -> None:
-    city = await get_city(message.from_user.id)
+@router.message(Command("forecast"))
+async def get_forecast(message: Message) -> None:
+    from app.main import send_weather_update
 
-    if city:
-        response_text = f"Ваш город: {city}"
-    else:
-        response_text = (
-            f"Вы ещё не указали город. Введите /set_location, чтобы сохранить город."
-        )
-
-    await message.answer(
-        text=response_text,
-        reply_markup=ReplyKeyboardRemove(),
-    )
+    await send_weather_update(message.from_user.id)
 
 
 @router.message(WeatherStates.city)
@@ -62,6 +55,7 @@ async def save_city_name(message: Message, state: FSMContext) -> None:
     await state.clear()
     await message.answer(
         text=f"Отлично. Город «{message.text}» сохранен!",
+        reply_markup=ReplyKeyboardRemove(),
     )
 
 
@@ -71,4 +65,3 @@ async def other_text_messages_handler(message: Message) -> None:
         text="Вы ввели не команду.\n\nС полным списком команд вы можете ознакомиться написав /help.",
         reply_markup=ReplyKeyboardRemove(),
     )
-
