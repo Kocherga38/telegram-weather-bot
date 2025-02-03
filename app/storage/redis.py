@@ -25,7 +25,7 @@ async def get_city(user_id: int) -> str:
     redis = await get_redis()
     city = await redis.get(f"user:{user_id}:city")
     if city is None:
-        logger.info(f"No city found for user {user_id}.")
+        logger.error(f"No city found for user {user_id}.")
     await redis.aclose()
     return city
 
