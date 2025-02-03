@@ -1,8 +1,7 @@
 import logging
 import redis.exceptions
 
-from aiogram import F, Router
-from aiogram.fsm.state import StatesGroup, State
+from aiogram import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import (
@@ -10,38 +9,22 @@ from aiogram.types import (
 )
 
 from app.config.bot import bot_settings as settings
+from app.routers.states import WeatherStates
 from app.storage import save_city_in_redis
 from app.api import fetch_weather_data
 from app.keyboard import main_kb
-from app.utils import get_weather
+from app.utils.send_weather_update import send_weather_update
 
 logger = logging.getLogger(__name__)
-
-
-class WeatherStates(StatesGroup):
-    city = State()
-
-
 router = Router()
 
 
 @router.message(Command(commands=["start", "location"]))
 async def start_handler(message: Message, state: FSMContext) -> None:
     await state.set_state(WeatherStates.city)
-    await message.answer(
-        text="Здравствуй.\n\nНапиши название города, из которого ты хочешь получать информацию о погоде.",
-        reply_markup=main_kb,
-    )
-
+    text = "Здравствуй.\n\nНапиши название города, из которого ты хочешь получать информацию о погоде."
+    await message.answer(text=text, reply_markup=main_kb)
     logger.info("Start handler отработал.")
-
-
-@router.message(Command("forecast"))
-async def get_forecast(message: Message) -> None:
-    from app.main import send_weather_update
-
-    await send_weather_update(message.from_user.id)
-    logger.info("Forecast handler отработал.")
 
 
 @router.message(WeatherStates.city)
@@ -53,31 +36,10 @@ async def save_city_name(message: Message, state: FSMContext) -> None:
         await message.answer("Ты ввел нихуя не город, попробуй еще.")
         logger.info("Пользователь ввёл какую-то хуйню, а не название города.")
         return await state.set_state(WeatherStates.city)
-
     try:
         await save_city_in_redis(message.from_user.id, message.text)
     except redis.exceptions.ConnectionError:
         logger.error("Connection error.")
 
     await state.clear()
-    await message.answer(
-        text=f"Отлично. Город <b>«{message.text}»</b> сохранен!",
-        reply_markup=main_kb,
-    )
-
-    text = get_weather(data=data, city=city)
-    await message.answer(
-        text=text,
-        reply_markup=main_kb,
-    )
-
-    logger.info("Город пользователя сохранен. Город - %s.", message.text)
-
-
-@router.message(F.text, ~F.state)
-async def other_text_messages_handler(message: Message) -> None:
-    await message.answer(
-        text="Вы ввели не команду.\n\nС полным списком команд вы можете ознакомиться написав /help.",
-        reply_markup=main_kb,
-    )
-    logger.info("other_text_messages_handler handler отработал.")
+    await send_weather_update(message=message, city=city, data=data)

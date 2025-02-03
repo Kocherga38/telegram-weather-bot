@@ -8,7 +8,7 @@ from aiogram.enums import ParseMode
 
 from app.api import fetch_weather_data
 from app.config import bot_settings as settings
-from app.routers import location_router, help_router
+from app.routers import location_router, help_router, other_text_messages_router, forecast_router
 from app.utils import get_weather
 from app.storage import get_city, get_all_users
 
@@ -52,6 +52,8 @@ async def main() -> None:
     dp.include_routers(
         help_router,
         location_router,
+        forecast_router,
+        other_text_messages_router,
     )
 
     asyncio.create_task(scheduled_weather_updates())
