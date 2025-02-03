@@ -9,5 +9,3 @@ COPY pyproject.toml poetry.lock ./
 RUN poetry install --no-root --no-interaction --no-ansi
 
 COPY . .
-
-CMD ["poetry", "run", "python", "app/main.py"]
