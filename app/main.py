@@ -9,7 +9,8 @@ from aiogram.enums import ParseMode
 from app.api import fetch_weather_data
 from app.config import bot_settings as settings
 from app.routers import location_router, help_router
-from app.utils import weather_emojis
+from app.utils import get_weather
+from app.storage import get_city, get_all_users
 
 bot = Bot(
     token=settings.TELEGRAM_BOT_TOKEN,
@@ -19,25 +20,12 @@ dp = Dispatcher()
 
 
 async def send_weather_update(user_id: int) -> None:
-    from app.storage import get_city
-
     city = await get_city(user_id)
     if not city:
         return
 
     data = await fetch_weather_data(settings.WEATHER_API_TOKEN, city=city)
-    weather = data["weather"][0]
-    emoji = weather_emojis.get(weather["main"].lower(), "❓")
-
-    text = (
-        f"Прогноз погоды в <b>{city}</b>:\n\n"
-        f"<blockquote>"
-        f"🌡 Температура: <b>{data['main']['temp']}℃</b>\n"
-        f"🤔 Ощущается как: <b>{data['main']['feels_like']}℃</b>\n"
-        f"{emoji} <b>{weather['description'].capitalize()}</b>\n"
-        f"💨 Ветер: <b>{data['wind']['speed']} м/с</b>"
-        f"</blockquote>"
-    )
+    text = get_weather(data, city)
 
     await bot.send_message(
         chat_id=user_id,
@@ -46,8 +34,6 @@ async def send_weather_update(user_id: int) -> None:
 
 
 async def scheduled_weather_updates():
-    from storage import get_all_users
-
     while True:
         try:
             users = await get_all_users()

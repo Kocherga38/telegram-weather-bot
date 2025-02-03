@@ -1,1 +1,1 @@
-from app.utils.weather_icons import weather_emojis
+from app.utils.get_weather import get_weather

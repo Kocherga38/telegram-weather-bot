@@ -13,6 +13,7 @@ from app.config.bot import bot_settings as settings
 from app.storage import save_city_in_redis
 from app.api import fetch_weather_data
 from app.keyboard import main_kb
+from app.utils import get_weather
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +46,8 @@ async def get_forecast(message: Message) -> None:
 
 @router.message(WeatherStates.city)
 async def save_city_name(message: Message, state: FSMContext) -> None:
-    data = await fetch_weather_data(settings.WEATHER_API_TOKEN, city=message.text)
+    city = message.text
+    data = await fetch_weather_data(settings.WEATHER_API_TOKEN, city=city)
 
     if data.get("code") == 404:
         await message.answer("Ты ввел нихуя не город, попробуй еще.")
@@ -62,6 +64,13 @@ async def save_city_name(message: Message, state: FSMContext) -> None:
         text=f"Отлично. Город <b>«{message.text}»</b> сохранен!",
         reply_markup=main_kb,
     )
+
+    text = get_weather(data=data, city=city)
+    await message.answer(
+        text=text,
+        reply_markup=main_kb,
+    )
+
     logger.info("Город пользователя сохранен. Город - %s.", message.text)
 
 
