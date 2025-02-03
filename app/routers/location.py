@@ -13,7 +13,7 @@ from app.routers.states import WeatherStates
 from app.storage import save_city_in_redis
 from app.api import fetch_weather_data
 from app.keyboard import main_kb
-from app.utils.send_weather_update import send_weather_update
+from app.utils import send_weather_from_the_city
 
 logger = logging.getLogger(__name__)
 router = Router()
@@ -29,7 +29,7 @@ async def start_handler(message: Message, state: FSMContext) -> None:
 
 @router.message(WeatherStates.city)
 async def save_city_name(message: Message, state: FSMContext) -> None:
-    city = message.text
+    city = message.text.capitalize()
     data = await fetch_weather_data(settings.WEATHER_API_TOKEN, city=city)
 
     if data.get("code") == 404:
@@ -42,4 +42,4 @@ async def save_city_name(message: Message, state: FSMContext) -> None:
         logger.error("Connection error.")
 
     await state.clear()
-    await send_weather_update(message=message, city=city, data=data)
+    await send_weather_from_the_city(message=message, city=city, data=data)

@@ -22,7 +22,7 @@ def get_weather(data, city):
     emoji = weather_emojis.get(weather["main"].lower(), "❓")
 
     text = (
-        f"Прогноз погоды в <b>{city}</b>:\n\n"
+        f"Прогноз погоды в <b>{city.capitalize()}</b>:\n\n"
         f"<blockquote>"
         f"🌡 Температура: <b>{data['main']['temp']}℃</b>\n"
         f"🤔 Ощущается как: <b>{data['main']['feels_like']}℃</b>\n"

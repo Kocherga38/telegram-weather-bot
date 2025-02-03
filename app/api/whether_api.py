@@ -23,7 +23,7 @@ async def fetch_weather_data(token: str, city: str) -> dict:
 
 
 async def main():
-    city = input("Enter city: ").strip() or "Нижнекамск"
+    city = input("Enter city: ").strip()
     token = settings.WEATHER_API_TOKEN
     weather = await fetch_weather_data(token=token, city=city)
     if weather:
